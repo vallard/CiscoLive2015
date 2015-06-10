@@ -1,0 +1,25 @@
+- name: Ensure Web Servers are Up
+  connection: local
+  hosts: local
+  vars_files:
+   - vars/metacloud_vars.yml
+
+  tasks: 
+  - name: Ensure web servers are down
+    nova_compute:
+      state: absent
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      login_username: "{{ lookup('env', 'OS_USERNAME') }}"
+      login_password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      login_tenant_name: "{{ lookup('env', 'OS_TENANT_NAME') }}"
+      name: "{{ item }}"
+      image_name: "CoreOS 633.1.0"
+      key_name: "{{ keypair }}"
+      # 3 is m1.large
+      flavor_id: 3
+    with_items:
+      - web01
+      - web02
+      - web03
+  
+  - name: Ensure Load balancers are down. 

@@ -1,0 +1,31 @@
+- name: Ensure Test image is up. 
+  connection: local
+  hosts: local
+  vars_files:
+   - vars/metacloud_vars.yml
+
+  tasks: 
+  - name: Ensure Test Image is up. 
+    nova_compute:
+      state: present
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      login_username: "{{ lookup('env', 'OS_USERNAME') }}"
+      login_password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      login_tenant_name: "{{ lookup('env', 'OS_TENANT_NAME') }}"
+      name: coreostest
+      image_name: "{{ coreos_image_name }}"
+      key_name: "{{ keypair }}"
+      flavor_id: "{{ m1large }}"
+      meta: 
+        group: web-servers
+      security_groups: "{{ security_group }}"
+      #user_data:  "{{ lookup('file', 'files/coreos-cloud-config.yaml') }}"
+      # install python, registry, etc. 
+      user_data:  "{{ lookup('file', 'files/cloud-config.sh') }}"
+
+- name: Get Ansible Environment ready
+  hosts: web-servers
+  roles:
+    - registry
+    - gitlab
+    - jenkins

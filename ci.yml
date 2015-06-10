@@ -1,0 +1,32 @@
+- name: Ensure CI environment is ready
+  connection: local
+  hosts: local
+  vars_files:
+   - vars/metacloud_vars.yml
+  tasks: 
+  - name: Ensure CI environment is deployed
+    nova_compute:
+      state: present
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      login_username: "{{ lookup('env', 'OS_USERNAME') }}"
+      login_password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      login_tenant_name: "{{ lookup('env', 'OS_TENANT_NAME') }}"
+      name: ci
+      image_name: "CoreOS 633.1.0"
+      key_name: "{{ keypair }}"
+      # 3 is m1.large
+      flavor_id: 3
+      meta: 
+        group: ci
+      security_groups: "{{ security_group }}"
+      floating_ip_pools:
+      - "{{ floating_ip_pool }}"
+      user_data:  "{{ lookup('file', 'files/cloud-config.sh') }}"
+
+- name: Make sure CI stuff is ready 
+  hosts: ci
+  roles:
+    - registry
+    - gitlab
+    - jenkins
+    - ci-proxy

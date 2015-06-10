@@ -1,0 +1,3 @@
+---
+- name: Ensure Docker Registry is up.
+  docker: image="registry:latest" volumes=/vol/docker-registry:/docker env="STORAGE=local,STORAGE_PATH=/docker" ports=5000:5000 name=registry

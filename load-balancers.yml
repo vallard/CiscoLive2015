@@ -1,0 +1,33 @@
+- name: Ensure Load Balancer is up
+  connection: local
+  hosts: local
+  vars_files:
+   - vars/metacloud_vars.yml
+
+  tasks: 
+  - name: Ensure Load Balancers A and B are up. 
+    nova_compute:
+      state: present
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      login_username: "{{ lookup('env', 'OS_USERNAME') }}"
+      login_password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      login_tenant_name: "{{ lookup('env', 'OS_TENANT_NAME') }}"
+      name: load-balancer-a
+      image_name: mc-vlb-3.6-x86_64-20140929
+      key_name: "{{ keypair }}"
+      flavor_id: 1734b486-93e0-477d-9e95-08cfe587be45
+      meta: 
+        group: load-balancers
+      security_groups: "{{ security_group }}"
+      floating_ip_pools:
+      - "{{ floating_ip_pool }}"
+    with_items:
+      - load-balancer-a
+      - load-balancer-b
+
+- name: Ensure Load Balancers are configured
+  hosts: load-balancers
+  sudo: true
+  roles: 
+   - load-balancer
+
