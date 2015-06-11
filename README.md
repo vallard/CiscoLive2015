@@ -38,14 +38,14 @@ If you just want to go quick without encryption, do the following:
 
 2. Comment the ./ansible.cfg so it looks like:  
 
-script```
-#vault_password_file=open_the_vault.sh
+```
+  #vault_password_file=open_the_vault.sh
 ```
 
 3.  Create or rewrite ./roles/gitlab/vars/main.yml 
 and define the password for the database: 
 
-script```
+```
 gitlab_db_password: secret-password
 ```
 
